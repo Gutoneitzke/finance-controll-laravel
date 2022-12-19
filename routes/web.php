@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -24,12 +25,15 @@ Route::get('/', function () {
     ]);
 });
 
-Route::middleware([
-    'auth:sanctum',
-    config('jetstream.auth_session'),
-    'verified',
-])->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
+Route::middleware(['auth:sanctum',config('jetstream.auth_session'),'verified'])->group(function () {
+    Route::get('/dashboard',[DashboardController::class, 'index'])->name('dashboard');
+
+    Route::prefix('spin')->controller(SpinController::class)->name('spin.')->group(function() {
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{id}/edit', 'edit')->where('id', '[0-9]+')->name('edit');
+        Route::put('/update/{id}', 'update')->where('id', '[0-9]+')->name('update');
+        Route::delete('/{id}', 'destroy')->where('id', '[0-9]+')->name('destroy');
+    });
 });
